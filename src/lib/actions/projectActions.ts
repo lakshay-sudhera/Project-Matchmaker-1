@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/db";
-import { Project, TeamMember, Hub } from "@/lib/models";
+import { Project, TeamMember, Hub, Application, Invitation } from "@/lib/models";
 import mongoose from "mongoose";
 
 // Create Project
@@ -140,6 +140,8 @@ export async function deleteProject(projectId: string) {
 
   // Perform cascade deletes
   await TeamMember.deleteMany({ project: projectId });
+  await Application.deleteMany({ project: projectId });
+  await Invitation.deleteMany({ project: projectId });
   await Hub.deleteOne({ project: projectId });
   await Project.findByIdAndDelete(projectId);
 

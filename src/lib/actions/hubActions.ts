@@ -17,9 +17,7 @@ async function checkTeamAccess(projectId: string, userId: string) {
   return false;
 }
 
-// ==========================================
 // KANBAN TASKS ACTIONS
-// ==========================================
 
 export async function addTask(
   projectId: string,
@@ -67,9 +65,8 @@ export async function updateTaskStatus(
   return { success: true };
 }
 
-// ==========================================
+
 // DISCUSSION BOARDS ACTIONS
-// ==========================================
 
 export async function createDiscussion(
   projectId: string,
@@ -118,9 +115,7 @@ export async function createDiscussionReply(
   return { success: true, replyId: reply._id.toString() };
 }
 
-// ==========================================
 // RESOURCE VAULT ACTIONS
-// ==========================================
 
 export async function addResource(
   projectId: string,
@@ -171,9 +166,7 @@ export async function deleteResource(projectId: string, resourceId: string) {
   return { success: true };
 }
 
-// ==========================================
 // EXPENSE TRACKER ACTIONS
-// ==========================================
 
 export async function addExpense(
   projectId: string,

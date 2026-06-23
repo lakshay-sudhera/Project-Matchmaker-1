@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "./auth.config";
 import { connectToDatabase } from "@/lib/db";
 import { User } from "@/lib/models";
+import { fetchGithubContributions } from "@/lib/github";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -12,38 +13,41 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           await connectToDatabase();
           const email = user.email || `${(profile as any)?.login}@github.com`;
+          const username = (profile as any)?.login || user.name || "user";
+          
+          let repos: any[] = [];
+          const languages = new Set<string>();
+          try {
+            // Fetch public repos (limit to 10 for performance)
+            const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=10`);
+            if (res.ok) {
+              const data = await res.json();
+              if (Array.isArray(data)) {
+                repos = data.map((r: any) => {
+                  if (r.language) languages.add(r.language);
+                  return {
+                    name: r.name,
+                    description: r.description || "",
+                    htmlUrl: r.html_url,
+                    stars: r.stargazers_count || 0,
+                    language: r.language || "",
+                  };
+                });
+              }
+            }
+          } catch (e) {
+            console.error("Failed to fetch GitHub repositories:", e);
+          }
+
+          const devLanguages = Array.from(languages);
+          const contributions = await fetchGithubContributions(username);
+          const contributionCount = contributions || (profile as any)?.public_repos || repos.length || 0;
+
           const existingUser = await User.findOne({ email });
           
           if (!existingUser) {
-            let repos: any[] = [];
-            const languages = new Set<string>();
-            const username = (profile as any)?.login || user.name || "user";
-            
-            try {
-              // Fetch public repos (limit to 10 for performance)
-              const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=10`);
-              if (res.ok) {
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                  repos = data.map((r: any) => {
-                    if (r.language) languages.add(r.language);
-                    return {
-                      name: r.name,
-                      description: r.description || "",
-                      htmlUrl: r.html_url,
-                      stars: r.stargazers_count || 0,
-                      language: r.language || "",
-                    };
-                  });
-                }
-              }
-            } catch (e) {
-              console.error("Failed to fetch GitHub repositories:", e);
-            }
-
             const bioText = (profile as any)?.bio || "Passionate software developer.";
             const githubProfileUrl = (profile as any)?.html_url || `https://github.com/${username}`;
-            const devLanguages = Array.from(languages);
             const skills = devLanguages.length > 0 ? devLanguages : ["Javascript", "TypeScript", "Git"];
             if (!skills.includes("Git")) skills.push("Git");
             if (!skills.includes("GitHub")) skills.push("GitHub");
@@ -57,7 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               githubUrl: githubProfileUrl,
               publicRepos: repos,
               languages: devLanguages,
-              contributionCount: (profile as any)?.public_repos || repos.length || 0,
+              contributionCount: contributionCount,
               skills: skills,
               roles: ["Fullstack"],
               availability: "Available",
@@ -70,6 +74,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             existingUser.image = user.image || existingUser.image;
             if ((profile as any)?.bio) {
               existingUser.bio = (profile as any).bio;
+            }
+            existingUser.contributionCount = contributionCount;
+            existingUser.publicRepos = repos;
+            if (devLanguages.length > 0) {
+              existingUser.languages = devLanguages;
             }
             await existingUser.save();
           }

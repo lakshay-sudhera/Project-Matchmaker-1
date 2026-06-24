@@ -68,10 +68,10 @@ src/
 │       ├── upload/                  # Cloudinary image upload route
 │       ├── cron/deadlines/          # Vercel Cron deadline check scheduler
 │       ├── notifications/
-│       │   ├── route.tsx            # Fetch notifications API endpoint
-│       │   ├── read-all/            # Bulk mark-as-read API endpoint
-│       │   └── [id]/read/           # Mark single notification as read API endpoint
-│       └── seed/                    # Database initializer 
+│          ├── route.tsx            # Fetch notifications API endpoint
+│          ├── read-all/            # Bulk mark-as-read API endpoint
+│          └── [id]/read/           # Mark single notification as read API endpoint
+│    
 ├── components/
 │   ├── Navbar.tsx                   # Top navigation layout
 │   ├── Sidebar.tsx                  # Hub side-navigation selector
@@ -181,17 +181,6 @@ Open [http://localhost:3000](http://localhost:3000) to view the application in y
 
 ---
 
-## 💾 Seeding Database Mock Data
-
-To test the application features without manually inputting initial datasets, boot up the local dev server and trigger the database seeder by navigating to:
-
-👉 **`http://localhost:3000/api/seed`**
-
-This will clean all MongoDB collections and seed:
-* **4 Users** (with synced GitHub repos, bio, availability status, and pre-completed projects counts)
-* **3 Projects** (Active, Recruiting, and Completed status)
-* **1 Team Workspace Hub** (featuring initial Kanban tasks, chat history logs, expenses, shared resources links, and active threads)
-* **2 Peer Reviews** (calculating developer trust scores)
 
 ---
 
@@ -204,7 +193,7 @@ Project Matchmaker calculates candidate matching scores (0-100) using a weighted
 * **10% Peer Reviews**: Overall rating score derived from Communication, Reliability, and Teamwork.
 * **10% Availability**: Current status indicator.
 
-If `GEMINI_API_KEY` is not set, the application automatically triggers a **mathematical rule-based fallback matchmaking calculator**, preventing API crashes and displaying recommendations in offline/local environments.
+If `GEMINI_API_KEY` is not set, the application automatically tries for the `GROQ_API_KEY` and `OPENROUTER_API_KEY` and if all are not set, it triggers a **mathematical rule-based fallback matchmaking calculator**, preventing API crashes and displaying recommendations in offline/local environments.
 
 ---
 

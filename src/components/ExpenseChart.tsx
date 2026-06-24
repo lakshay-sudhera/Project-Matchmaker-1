@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { addExpense, deleteExpense } from "@/lib/actions/hubActions";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { DollarSign, Plus, Trash2, Calendar, Folder, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ExpenseType {
   _id: string;
@@ -103,9 +104,11 @@ export default function ExpenseChart({
         setAmount("");
         setDate("");
         setShowAddForm(false);
+        toast.success("Expense logged successfully!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to add expense:", err);
+      toast.error(err.message || "Failed to log expense.");
     } finally {
       setLoading(false);
     }
@@ -119,9 +122,11 @@ export default function ExpenseChart({
       const res = await deleteExpense(projectId, expenseId);
       if (res.success) {
         setExpenses((prev) => prev.filter((e) => e._id !== expenseId));
+        toast.success("Expense deleted successfully!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to delete expense:", err);
+      toast.error(err.message || "Failed to delete expense.");
     } finally {
       setDeletingId(null);
     }

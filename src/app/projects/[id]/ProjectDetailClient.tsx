@@ -444,19 +444,22 @@ export default function ProjectDetailClient({
               </div>
             </div>
             {isOwner ? (
-              <div className="text-right">
+              <div className="text-right flex flex-col items-end">
                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Change Status</span>
-                <select
-                  className="block mt-1 bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-violet-500"
-                  value={status}
-                  onChange={handleStatusChange}
-                  disabled={updatingStatus}
-                >
-                  <option value="Recruiting">Recruiting</option>
-                  <option value="Active">Active</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Archived">Archived</option>
-                </select>
+                <div className="flex items-center gap-2 mt-1">
+                  {updatingStatus && <Loader2 className="h-3.5 w-3.5 animate-spin text-violet-400" />}
+                  <select
+                    className="block bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-violet-500"
+                    value={status}
+                    onChange={handleStatusChange}
+                    disabled={updatingStatus}
+                  >
+                    <option value="Recruiting">Recruiting</option>
+                    <option value="Active">Active</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Archived">Archived</option>
+                  </select>
+                </div>
               </div>
             ) : null}
           </div>

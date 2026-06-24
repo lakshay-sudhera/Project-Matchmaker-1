@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { updateProfile, reconnectGithub } from "@/lib/actions/profileActions";
 import SkillBadge from "@/components/SkillBadge";
 import ReviewCard from "@/components/ReviewCard";
-import { User, Mail, BookOpen, AlertCircle, Edit3, Save, Check, Award, Code, Activity } from "lucide-react";
+import { User, Mail, BookOpen, AlertCircle, Edit3, Save, Check, Award, Code, Activity, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface ProfileClientProps {
@@ -48,8 +48,20 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
   const [skills, setSkills] = useState(user.skills.join(", "));
   const [roles, setRoles] = useState(user.roles.join(", "));
   const [loading, setLoading] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const handleReconnect = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setConnecting(true);
+    try {
+      await reconnectGithub();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to trigger GitHub authorization.");
+      setConnecting(false);
+    }
+  };
 
   const [localAvailability, setLocalAvailability] = useState(user.availability);
   const [updatingAvailability, setUpdatingAvailability] = useState(false);
@@ -240,12 +252,19 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
                     Enabled
                   </span>
                 </div>
-                <form action={reconnectGithub}>
+                <form onSubmit={handleReconnect}>
                   <button
                     type="submit"
-                    className="w-full mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-850 hover:border-zinc-800 hover:text-zinc-250 px-4 py-2 text-xs font-bold text-zinc-400 transition duration-200 cursor-pointer"
+                    disabled={connecting}
+                    className="w-full mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-850 hover:border-zinc-800 hover:text-zinc-250 px-4 py-2 text-xs font-bold text-zinc-400 transition duration-200 cursor-pointer disabled:opacity-50"
                   >
-                    Reconnect GitHub
+                    {connecting ? (
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin text-violet-400" /> Connecting...
+                      </>
+                    ) : (
+                      "Reconnect GitHub"
+                    )}
                   </button>
                 </form>
               </div>
@@ -260,12 +279,19 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
                 <p className="text-[11px] text-zinc-550 leading-relaxed">
                   To automatically create repositories and invite team members, reconnect your GitHub account and allow repository access.
                 </p>
-                <form action={reconnectGithub}>
+                <form onSubmit={handleReconnect}>
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-violet-600/10 transition duration-200 cursor-pointer"
+                    disabled={connecting}
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-violet-600/10 transition duration-200 cursor-pointer disabled:opacity-50"
                   >
-                    Reconnect GitHub
+                    {connecting ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-white" /> Connecting...
+                      </>
+                    ) : (
+                      "Connect GitHub"
+                    )}
                   </button>
                 </form>
               </div>

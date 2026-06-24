@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/db";
 import { Project, TeamMember, Application, Invitation, User } from "@/lib/models";
-import { getRecommendations } from "@/lib/gemini";
+import { getRecommendations } from "@/lib/aiconfig";
 import DashboardClient from "./DashboardClient";
 
 export default async function DashboardPage() {

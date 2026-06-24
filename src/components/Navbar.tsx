@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { auth, signIn, signOut } from "@/auth";
 import { Sparkles, LayoutDashboard, PlusCircle, LogIn, LogOut, Compass, User as UserIcon } from "lucide-react";
+import NotificationBell from "./notifications/NotificationBell";
 
 export default async function Navbar() {
   const session = await auth();
@@ -43,6 +44,7 @@ export default async function Navbar() {
           <div className="flex items-center gap-4">
             {user ? (
               <div className="flex items-center gap-3">
+                <NotificationBell currentUserId={user.id!} />
                 {/* Profile Link */}
                 <Link
                   href={`/profile/${(user as any).username || "me"}`}

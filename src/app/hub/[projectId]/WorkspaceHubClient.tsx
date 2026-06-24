@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import ChatBox from "@/components/ChatBox";
 import KanbanBoard from "@/components/KanbanBoard";
@@ -87,6 +87,7 @@ interface WorkspaceHubProps {
   initialExpenses: ExpenseType[];
   initialResources: ResourceType[];
   initialDiscussions: DiscussionType[];
+  initialTab?: string;
 }
 
 export default function WorkspaceHubClient({
@@ -101,8 +102,15 @@ export default function WorkspaceHubClient({
   initialExpenses,
   initialResources,
   initialDiscussions,
+  initialTab,
 }: WorkspaceHubProps) {
-  const [activeTab, setActiveTab] = useState("chat");
+  const [activeTab, setActiveTab] = useState(initialTab || "chat");
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // State managers
   const [tasks, setTasks] = useState<TaskType[]>(initialTasks);

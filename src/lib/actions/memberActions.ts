@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/db";
 import { Project, TeamMember, Application, Invitation, Hub, User } from "@/lib/models";
 import mongoose from "mongoose";
+import { createNotification } from "@/lib/notificationService";
 
 // Create automatic hub workspace if >= 2 members
 async function ensureHubExists(projectId: string) {
@@ -49,6 +50,25 @@ export async function applyToProject(projectId: string, message: string) {
     message,
     status: "Pending",
   });
+
+  // Trigger APPLICATION_UPDATE notification to the project owner
+  try {
+    await createNotification({
+      recipient: project.owner.toString(),
+      sender: session.user.id,
+      type: "APPLICATION_UPDATE",
+      title: "New Project Application",
+      message: `${session.user.name || "A developer"} applied to join your project "${project.title}"`,
+      link: `/projects/${projectId}`,
+      priority: "MEDIUM",
+      metadata: {
+        projectId,
+        applicationId: app._id.toString(),
+      },
+    });
+  } catch (err) {
+    console.error("Failed to create application notification:", err);
+  }
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/dashboard");
@@ -101,6 +121,42 @@ export async function respondToApplication(applicationId: string, status: "Accep
 
     // Auto provision Workspace Hub if project size >= 2
     await ensureHubExists(project._id.toString());
+
+    // Trigger APPLICATION_ACCEPTED notification
+    try {
+      await createNotification({
+        recipient: application.user.toString(),
+        sender: session.user.id,
+        type: "APPLICATION_ACCEPTED",
+        title: "Application Accepted",
+        message: `Your application for "${project.title}" was accepted`,
+        link: `/projects/${project._id}`,
+        priority: "HIGH",
+        metadata: {
+          projectId: project._id.toString(),
+        },
+      });
+    } catch (err) {
+      console.error("Failed to create application accepted notification:", err);
+    }
+  } else if (status === "Rejected") {
+    // Trigger APPLICATION_REJECTED notification
+    try {
+      await createNotification({
+        recipient: application.user.toString(),
+        sender: session.user.id,
+        type: "APPLICATION_REJECTED",
+        title: "Application Rejected",
+        message: `Your application for "${project.title}" was rejected`,
+        link: `/projects/${project._id}`,
+        priority: "MEDIUM",
+        metadata: {
+          projectId: project._id.toString(),
+        },
+      });
+    } catch (err) {
+      console.error("Failed to create application rejected notification:", err);
+    }
   }
 
   revalidatePath(`/projects/${project._id}`);
@@ -142,6 +198,25 @@ export async function sendInvitation(projectId: string, receiverId: string, mess
     existingInvite.sender = new mongoose.Types.ObjectId(session.user.id);
     await existingInvite.save();
 
+    // Trigger PROJECT_INVITATION notification
+    try {
+      await createNotification({
+        recipient: receiverId,
+        sender: session.user.id,
+        type: "PROJECT_INVITATION",
+        title: "New Team Invitation",
+        message: `You have been invited to join "${project.title}"`,
+        link: "/dashboard",
+        priority: "HIGH",
+        metadata: {
+          projectId,
+          invitationId: existingInvite._id.toString(),
+        },
+      });
+    } catch (err) {
+      console.error("Failed to create invitation notification:", err);
+    }
+
     revalidatePath(`/projects/${projectId}`);
     revalidatePath("/dashboard");
     return { success: true, invitationId: existingInvite._id.toString() };
@@ -154,6 +229,25 @@ export async function sendInvitation(projectId: string, receiverId: string, mess
     message,
     status: "Pending",
   });
+
+  // Trigger PROJECT_INVITATION notification
+  try {
+    await createNotification({
+      recipient: receiverId,
+      sender: session.user.id,
+      type: "PROJECT_INVITATION",
+      title: "New Team Invitation",
+      message: `You have been invited to join "${project.title}"`,
+      link: "/dashboard",
+      priority: "HIGH",
+      metadata: {
+        projectId,
+        invitationId: invite._id.toString(),
+      },
+    });
+  } catch (err) {
+    console.error("Failed to create invitation notification:", err);
+  }
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/dashboard");

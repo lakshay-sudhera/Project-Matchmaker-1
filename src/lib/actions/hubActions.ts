@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/db";
 import { Project, TeamMember, Task, Expense, Resource, Discussion, DiscussionReply } from "@/lib/models";
 import mongoose from "mongoose";
+import { createNotification } from "@/lib/notificationService";
 
 // Check if user is a member of the project team
 async function checkTeamAccess(projectId: string, userId: string) {
@@ -38,6 +39,27 @@ export async function addTask(
     assignee: data.assigneeId ? new mongoose.Types.ObjectId(data.assigneeId) : undefined,
     dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
   });
+
+  // Trigger TASK_ASSIGNED notification to the assignee
+  if (data.assigneeId) {
+    try {
+      await createNotification({
+        recipient: data.assigneeId,
+        sender: session.user.id,
+        type: "TASK_ASSIGNED",
+        title: "Task Assigned",
+        message: `You have been assigned a new task: ${data.title}`,
+        link: `/hub/${projectId}?tab=kanban`,
+        priority: "HIGH",
+        metadata: {
+          projectId,
+          taskId: task._id.toString(),
+        },
+      });
+    } catch (err) {
+      console.error("Failed to create task assigned notification:", err);
+    }
+  }
 
   revalidatePath(`/hub/${projectId}`);
   return { success: true, taskId: task._id.toString() };
@@ -209,6 +231,41 @@ export async function addExpense(
     date: data.date ? new Date(data.date) : new Date(),
     addedBy: new mongoose.Types.ObjectId(session.user.id),
   });
+
+  // Trigger EXPENSE_ADDED notifications
+  try {
+    const project = await Project.findById(projectId);
+    const recipients = new Set<string>();
+    if (project) {
+      recipients.add(project.owner.toString());
+    }
+
+    const teamMembers = await TeamMember.find({ project: projectId });
+    teamMembers.forEach((m) => recipients.add(m.user.toString()));
+
+    // Exclude the sender
+    recipients.delete(session.user.id);
+
+    const senderName = session.user.name || "A team member";
+
+    for (const recipientId of recipients) {
+      await createNotification({
+        recipient: recipientId,
+        sender: session.user.id,
+        type: "EXPENSE_ADDED",
+        title: "New Expense Added",
+        message: `${senderName} added a ${data.category} expense of ₹${data.amount} for "${data.title}"`,
+        link: `/hub/${projectId}?tab=expenses`,
+        priority: "MEDIUM",
+        metadata: {
+          projectId,
+          expenseId: expense._id.toString(),
+        },
+      });
+    }
+  } catch (err) {
+    console.error("Failed to create expense notifications:", err);
+  }
 
   revalidatePath(`/hub/${projectId}`);
   return { success: true, expenseId: expense._id.toString() };

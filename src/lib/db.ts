@@ -21,6 +21,8 @@ if (!global.mongoose) {
   global.mongoose = cached;
 }
 
+let cronStarted = false;
+
 export async function connectToDatabase() {
   if (cached.conn) {
     return cached.conn;
@@ -36,6 +38,22 @@ export async function connectToDatabase() {
 
   try {
     cached.conn = await cached.promise;
+
+    // Start background scheduler for task deadlines upon initial db connection
+    if (!cronStarted && process.env.NODE_ENV !== "test") {
+      cronStarted = true;
+      setTimeout(() => {
+        import("./notificationService").then(({ checkDeadlineReminders }) => {
+          checkDeadlineReminders().catch(console.error);
+        });
+      }, 10000);
+
+      setInterval(() => {
+        import("./notificationService").then(({ checkDeadlineReminders }) => {
+          checkDeadlineReminders().catch(console.error);
+        });
+      }, 4 * 60 * 60 * 1000); // Check every 4 hours
+    }
   } catch (e) {
     cached.promise = null;
     throw e;

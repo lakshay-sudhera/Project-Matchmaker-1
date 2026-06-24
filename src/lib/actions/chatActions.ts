@@ -6,6 +6,7 @@ import { connectToDatabase } from "@/lib/db";
 import { TeamMember, Project, Message, User } from "@/lib/models";
 import { pusherServer } from "@/lib/pusherServer";
 import mongoose from "mongoose";
+import { createNotification } from "@/lib/notificationService";
 
 export async function sendMessage(projectId: string, text: string, attachments: string[] = []) {
   const session = await auth();
@@ -32,6 +33,30 @@ export async function sendMessage(projectId: string, text: string, attachments: 
     text: text.trim(),
     attachments: attachments,
   });
+
+  // Trigger CHAT_MESSAGE notifications for all team members (except the sender)
+  try {
+    const allMembers = await TeamMember.find({ project: projectId });
+    for (const member of allMembers) {
+      if (member.user.toString() === session.user.id) continue;
+
+      await createNotification({
+        recipient: member.user.toString(),
+        sender: session.user.id,
+        type: "CHAT_MESSAGE",
+        title: "New Team Message",
+        message: `${session.user.name || "A teammate"} sent a message in "${project?.title || "project chat"}"`,
+        link: `/hub/${projectId}?tab=chat`,
+        priority: "LOW",
+        metadata: {
+          projectId,
+          messageId: message._id.toString(),
+        },
+      });
+    }
+  } catch (err) {
+    console.error("Failed to create chat notifications:", err);
+  }
 
   // Broadcast via Pusher in real-time
   try {

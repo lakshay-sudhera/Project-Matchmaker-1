@@ -8,6 +8,7 @@ export interface ITask extends Document {
   assignee?: mongoose.Types.ObjectId;
   dueDate?: Date;
   completed?: boolean;
+  deadlineReminded?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +27,7 @@ const TaskSchema = new Schema<ITask>(
     assignee: { type: Schema.Types.ObjectId, ref: "User" },
     dueDate: { type: Date },
     completed: { type: Boolean, default: false },
+    deadlineReminded: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

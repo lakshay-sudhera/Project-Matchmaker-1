@@ -7,10 +7,12 @@ import WorkspaceHubClient from "./WorkspaceHubClient";
 
 interface Props {
   params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }
 
-export default async function HubPage({ params }: Props) {
+export default async function HubPage({ params, searchParams }: Props) {
   const { projectId } = await params;
+  const { tab } = await searchParams;
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -166,6 +168,7 @@ export default async function HubPage({ params }: Props) {
         initialExpenses={initialExpenses as any}
         initialResources={initialResources as any}
         initialDiscussions={initialDiscussions}
+        initialTab={tab}
       />
     </div>
   );

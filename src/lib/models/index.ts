@@ -11,3 +11,4 @@ export * from "./Resource";
 export * from "./Task";
 export * from "./Expense";
 export * from "./Review";
+export * from "./Notification";

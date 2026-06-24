@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { addTask, updateTaskStatus, toggleTaskCompletion } from "@/lib/actions/hubActions";
 import { Plus, ArrowRight, ArrowLeft, Calendar, User, Clock, Loader2, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
 import {
   DndContext,
   PointerSensor,
@@ -268,9 +269,11 @@ export default function KanbanBoard({
         setTasks((prev) =>
           prev.map((t) => (t._id === taskId ? { ...t, status: nextStatus } : t))
         );
+        toast.success(`Task status updated to "${nextStatus}"!`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to update task status:", err);
+      toast.error(err.message || "Failed to update task status.");
     } finally {
       setUpdatingTaskId(null);
     }
@@ -285,9 +288,11 @@ export default function KanbanBoard({
         setTasks((prev) =>
           prev.map((t) => (t._id === taskId ? { ...t, completed: !currentCompleted } : t))
         );
+        toast.success(currentCompleted ? "Task marked as active!" : "Task marked as completed!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to toggle task completion:", err);
+      toast.error(err.message || "Failed to update task.");
     } finally {
       setUpdatingTaskId(null);
     }
@@ -325,9 +330,11 @@ export default function KanbanBoard({
         setNewTaskAssignee("");
         setNewTaskDueDate("");
         setShowAddForm(false);
+        toast.success("Task created successfully!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to add task:", err);
+      toast.error(err.message || "Failed to add task.");
     } finally {
       setAddingTask(false);
     }
@@ -381,9 +388,11 @@ export default function KanbanBoard({
           setTasks((prev) =>
             prev.map((t) => (t._id === activeId ? { ...t, status: targetStatus! } : t))
           );
+          toast.success(`Task status updated to "${targetStatus}"!`);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to update task status:", err);
+        toast.error(err.message || "Failed to update task status.");
       } finally {
         setUpdatingTaskId(null);
       }

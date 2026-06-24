@@ -7,6 +7,7 @@ import ProjectCard from "@/components/ProjectCard";
 import StatusBadge from "@/components/StatusBadge";
 import Link from "next/link";
 import { Folder, Users, Star, Sparkles, Inbox, Send, Layout, Check, X, ArrowRight, Loader2, Award } from "lucide-react";
+import { toast } from "sonner";
 
 interface DashboardClientProps {
   ownedProjects: any[];
@@ -52,9 +53,10 @@ export default function DashboardClient({
       const res = await respondToInvitation(inviteId, decision);
       if (res.success) {
         setInvitations((prev) => prev.filter((i) => i._id !== inviteId));
+        toast.success(`Successfully ${decision.toLowerCase()} the invitation!`);
       }
     } catch (e: any) {
-      alert(e.message || "Failed to respond to invitation.");
+      toast.error(e.message || "Failed to respond to invitation.");
     } finally {
       setActionLoading(null);
     }

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createProject } from "@/lib/actions/projectActions";
 import { FolderPlus, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function CreateProjectPage() {
       });
 
       if (res.success) {
+        toast.success("Project created successfully!");
         router.push(`/projects/${res.projectId}`);
       }
     } catch (e: any) {

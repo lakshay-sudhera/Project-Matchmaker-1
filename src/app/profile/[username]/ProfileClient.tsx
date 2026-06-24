@@ -5,6 +5,7 @@ import { updateProfile } from "@/lib/actions/profileActions";
 import SkillBadge from "@/components/SkillBadge";
 import ReviewCard from "@/components/ReviewCard";
 import { User, Mail, BookOpen, AlertCircle, Edit3, Save, Check, Award, Code, Activity } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProfileClientProps {
   user: {
@@ -64,8 +65,10 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
         roles: user.roles,
         bio: user.bio,
       });
-    } catch (err) {
+      toast.success(`Availability updated to "${nextVal}"!`);
+    } catch (err: any) {
       console.error("Failed to update availability:", err);
+      toast.error(err.message || "Failed to update availability.");
       setLocalAvailability(user.availability);
     } finally {
       setUpdatingAvailability(false);
@@ -100,10 +103,12 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
       if (res.success) {
         setSuccess(true);
         setEditMode(false);
+        toast.success("Profile updated successfully!");
         setTimeout(() => setSuccess(false), 3000);
       }
     } catch (err: any) {
       setError(err.message || "Failed to update profile.");
+      toast.error(err.message || "Failed to update profile.");
     } finally {
       setLoading(false);
     }

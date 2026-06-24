@@ -8,6 +8,7 @@ import ExpenseChart from "@/components/ExpenseChart";
 import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import { addResource, deleteResource, createDiscussion, createDiscussionReply } from "@/lib/actions/hubActions";
 import { Link as LinkIcon, Plus, Trash2, ExternalLink, MessageSquare, PlusCircle, Reply, User, ArrowLeft, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface MemberType {
   _id: string;
@@ -155,9 +156,11 @@ export default function WorkspaceHubClient({
         setResTitle("");
         setResUrl("");
         setResShowForm(false);
+        toast.success("Resource shared successfully!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      toast.error(err.message || "Failed to share resource link.");
     } finally {
       setResLoading(false);
     }
@@ -170,9 +173,11 @@ export default function WorkspaceHubClient({
       const res = await deleteResource(projectId, resourceId);
       if (res.success) {
         setResources((prev) => prev.filter((r) => r._id !== resourceId));
+        toast.success("Resource deleted successfully!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      toast.error(err.message || "Failed to delete resource.");
     }
   };
 
@@ -205,9 +210,11 @@ export default function WorkspaceHubClient({
         setDiscTitle("");
         setDiscContent("");
         setDiscShowForm(false);
+        toast.success("Discussion topic created!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      toast.error(err.message || "Failed to create discussion topic.");
     } finally {
       setDiscLoading(false);
     }
@@ -245,9 +252,11 @@ export default function WorkspaceHubClient({
 
         setDiscussions(updatedDiscussions);
         setReplyContent("");
+        toast.success("Reply posted!");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      toast.error(err.message || "Failed to post reply.");
     } finally {
       setReplyLoading(false);
     }

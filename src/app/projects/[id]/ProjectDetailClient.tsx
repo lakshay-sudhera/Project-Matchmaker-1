@@ -9,6 +9,7 @@ import StatusBadge from "@/components/StatusBadge";
 import SkillBadge from "@/components/SkillBadge";
 import Link from "next/link";
 import { Users, Layout, ShieldAlert, Check, X, FileText, Send, Trash2, LogOut, ArrowRight, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProjectDetailClientProps {
   project: {
@@ -126,6 +127,7 @@ export default function ProjectDetailClient({
 
       if (res.success) {
         setShowEditModal(false);
+        toast.success("Project details updated successfully!");
         router.refresh();
       }
     } catch (err: any) {
@@ -168,6 +170,7 @@ export default function ProjectDetailClient({
         setRatingTech(5);
         setRatingRel(5);
         setRatingTeam(5);
+        toast.success("Feedback review submitted successfully!");
         router.refresh();
       }
     } catch (err: any) {
@@ -188,9 +191,11 @@ export default function ProjectDetailClient({
       const res = await updateProjectStatus(project._id, nextStatus);
       if (res.success) {
         setStatus(nextStatus);
+        toast.success(`Project status updated to ${nextStatus}!`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      toast.error(err.message || "Failed to update project status.");
     } finally {
       setUpdatingStatus(false);
     }
@@ -203,10 +208,12 @@ export default function ProjectDetailClient({
     try {
       const res = await deleteProject(project._id);
       if (res.success) {
+        toast.success("Project deleted successfully!");
         router.push("/dashboard");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      toast.error(err.message || "Failed to delete project.");
       setDeleting(false);
     }
   };
@@ -223,9 +230,11 @@ export default function ProjectDetailClient({
       if (res.success) {
         setApplied(true);
         setAppStatus("Pending");
+        toast.success("Application submitted successfully!");
       }
     } catch (err: any) {
       setApplyError(err.message || "Failed to apply.");
+      toast.error(err.message || "Failed to apply.");
     } finally {
       setActionLoading(null);
     }
@@ -237,10 +246,11 @@ export default function ProjectDetailClient({
     try {
       const res = await respondToApplication(appId, decision);
       if (res.success) {
+        toast.success(`Application ${decision.toLowerCase()} successfully!`);
         router.refresh();
       }
     } catch (err: any) {
-      alert(err.message || "Failed to manage application.");
+      toast.error(err.message || "Failed to manage application.");
     } finally {
       setActionLoading(null);
     }
@@ -253,10 +263,11 @@ export default function ProjectDetailClient({
     try {
       const res = await removeTeamMember(project._id, currentUser!.id);
       if (res.success) {
+        toast.success("Successfully left the team.");
         router.refresh();
       }
     } catch (err: any) {
-      alert(err.message || "Failed to leave team.");
+      toast.error(err.message || "Failed to leave team.");
     } finally {
       setActionLoading(null);
     }
@@ -269,10 +280,11 @@ export default function ProjectDetailClient({
     try {
       const res = await removeTeamMember(project._id, memberId);
       if (res.success) {
+        toast.success(`Removed ${memberName} from the team.`);
         router.refresh();
       }
     } catch (err: any) {
-      alert(err.message || "Failed to remove member.");
+      toast.error(err.message || "Failed to remove member.");
     } finally {
       setActionLoading(null);
     }

@@ -42,6 +42,8 @@ interface KanbanBoardProps {
   projectId: string;
   initialTasks: TaskType[];
   members: MemberType[];
+  tasks?: TaskType[];
+  setTasks?: React.Dispatch<React.SetStateAction<TaskType[]>>;
 }
 
 // Column wrapper supporting Droppable behavior
@@ -224,8 +226,16 @@ function SortableTaskCard({
   );
 }
 
-export default function KanbanBoard({ projectId, initialTasks, members }: KanbanBoardProps) {
-  const [tasks, setTasks] = useState<TaskType[]>(initialTasks);
+export default function KanbanBoard({
+  projectId,
+  initialTasks,
+  members,
+  tasks: propsTasks,
+  setTasks: propsSetTasks,
+}: KanbanBoardProps) {
+  const [localTasks, setLocalTasks] = useState<TaskType[]>(initialTasks);
+  const tasks = propsTasks !== undefined ? propsTasks : localTasks;
+  const setTasks = propsSetTasks !== undefined ? propsSetTasks : setLocalTasks;
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDesc, setNewTaskDesc] = useState("");
   const [newTaskAssignee, setNewTaskAssignee] = useState("");

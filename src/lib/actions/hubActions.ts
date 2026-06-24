@@ -65,6 +65,28 @@ export async function updateTaskStatus(
   return { success: true };
 }
 
+export async function toggleTaskCompletion(
+  projectId: string,
+  taskId: string,
+  completed: boolean
+) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  await connectToDatabase();
+  const hasAccess = await checkTeamAccess(projectId, session.user.id);
+  if (!hasAccess) throw new Error("Access denied.");
+
+  const task = await Task.findOne({ _id: taskId, project: projectId });
+  if (!task) throw new Error("Task not found.");
+
+  task.completed = completed;
+  await task.save();
+
+  revalidatePath(`/hub/${projectId}`);
+  return { success: true };
+}
+
 
 // DISCUSSION BOARDS ACTIONS
 

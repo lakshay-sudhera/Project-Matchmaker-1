@@ -7,6 +7,7 @@ export interface ITask extends Document {
   status: "Todo" | "In Progress" | "Review" | "Done";
   assignee?: mongoose.Types.ObjectId;
   dueDate?: Date;
+  completed?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +25,7 @@ const TaskSchema = new Schema<ITask>(
     },
     assignee: { type: Schema.Types.ObjectId, ref: "User" },
     dueDate: { type: Date },
+    completed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

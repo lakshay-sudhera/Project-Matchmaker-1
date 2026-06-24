@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MessageSquare, Users, Kanban, DollarSign, FolderOpen, ArrowLeft } from "lucide-react";
+import { MessageSquare, Users, Kanban, DollarSign, FolderOpen, ArrowLeft, BarChart3 } from "lucide-react";
 import Link from "next/link";
 
 interface SidebarProps {
@@ -18,6 +18,7 @@ export default function Sidebar({ activeTab, setActiveTab, projectTitle, project
     { id: "discussions", label: "Discussions", icon: Users },
     { id: "resources", label: "Resource Vault", icon: FolderOpen },
     { id: "expenses", label: "Expense Tracker", icon: DollarSign },
+    { id: "analytics", label: "Analytics Dashboard", icon: BarChart3 },
   ];
 
   return (

@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/db";
 import { Project, TeamMember, Hub, Application, Invitation } from "@/lib/models";
 import mongoose from "mongoose";
+import { setupGitHubRepository } from "@/lib/github";
 
 // Create Project
 export async function createProject(formData: {
@@ -110,7 +111,18 @@ export async function updateProjectStatus(
     throw new Error("You do not have permission to update this project status.");
   }
 
+  const previousStatus = project.status;
   project.status = status;
+
+  // Auto GitHub setup when transitioning from Recruiting to Active
+  if (previousStatus === "Recruiting" && status === "Active") {
+    console.log(`Project "${project.title}" transitioning from Recruiting to Active. Triggering GitHub integration...`);
+    const repoUrl = await setupGitHubRepository(projectId, project.title);
+    if (repoUrl) {
+      project.githubRepo = repoUrl;
+    }
+  }
+
   await project.save();
 
   revalidatePath(`/projects/${projectId}`);

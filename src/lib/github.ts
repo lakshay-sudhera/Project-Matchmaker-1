@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
-import { TeamMember, Resource, Project } from "./models";
 
+/**
+ * Scrapes public contribution count for a given username.
+ */
 export async function fetchGithubContributions(username: string): Promise<number> {
   if (!username) return 0;
   try {
@@ -25,160 +27,145 @@ export async function fetchGithubContributions(username: string): Promise<number
   }
 }
 
-export async function setupGitHubRepository(projectId: string, projectTitle: string): Promise<string | null> {
-  const pat = process.env.GITHUB_PAT;
-  if (!pat) {
-    console.warn("GITHUB_PAT is missing in environment. Skipping automatic GitHub setup.");
-    return null;
-  }
-
+/**
+ * Validates if the given GitHub access token has valid authentication.
+ */
+export async function checkGitHubConnection(accessToken: string): Promise<boolean> {
+  if (!accessToken) return false;
   try {
-    // 1. Get authenticated GitHub user details
-    const userRes = await fetch("https://api.github.com/user", {
+    const res = await fetch("https://api.github.com/user", {
       headers: {
-        "Authorization": `token ${pat}`,
+        "Authorization": `token ${accessToken}`,
         "Accept": "application/vnd.github.v3+json",
       },
     });
+    return res.ok;
+  } catch (err) {
+    console.error("Error checking GitHub connection:", err);
+    return false;
+  }
+}
 
-    if (!userRes.ok) {
-      throw new Error(`Failed to fetch GitHub user details: ${userRes.statusText}`);
-    }
+/**
+ * Creates a public repository under the authenticated user's account.
+ */
+export async function createRepository(
+  accessToken: string,
+  projectTitle: string,
+  projectDescription: string
+): Promise<{ name: string; url: string; owner: string; createdAt: Date }> {
+  // 1. Get authenticated user login details
+  const userRes = await fetch("https://api.github.com/user", {
+    headers: {
+      "Authorization": `token ${accessToken}`,
+      "Accept": "application/vnd.github.v3+json",
+    },
+  });
 
-    const userData = await userRes.json();
-    const ownerName = userData.login;
-    if (!ownerName) {
-      throw new Error("Could not retrieve GitHub login name from PAT.");
-    }
+  if (!userRes.ok) {
+    throw new Error(`Failed to fetch GitHub profile. Status: ${userRes.statusText}`);
+  }
 
-    // 2. Format a safe, lowercase, alphanumeric repository name
-    let repoName = projectTitle
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+  const userData = await userRes.json();
+  const owner = userData.login;
+  if (!owner) {
+    throw new Error("Could not retrieve GitHub login name from access token.");
+  }
 
-    if (!repoName) {
-      repoName = `project-${projectId.slice(-6)}`;
-    }
+  // 2. Format a safe, lowercase, alphanumeric repository name
+  let repoName = projectTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 
-    // 3. Create the private repository
-    let createRes = await fetch("https://api.github.com/user/repos", {
+  if (!repoName) {
+    repoName = `project-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+
+  // 3. Create the repository (public by default, with auto_init README)
+  let createRes = await fetch("https://api.github.com/user/repos", {
+    method: "POST",
+    headers: {
+      "Authorization": `token ${accessToken}`,
+      "Accept": "application/vnd.github.v3+json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: repoName,
+      description: projectDescription || `Shared repository for project: ${projectTitle}`,
+      private: false, // Public repository by default
+      auto_init: true,
+    }),
+  });
+
+  // Handle repository name collision by appending a unique suffix
+  if (createRes.status === 422) {
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    repoName = `${repoName}-${suffix}`;
+    console.log(`Repository name already exists, retrying with unique suffix: ${repoName}`);
+
+    createRes = await fetch("https://api.github.com/user/repos", {
       method: "POST",
       headers: {
-        "Authorization": `token ${pat}`,
+        "Authorization": `token ${accessToken}`,
         "Accept": "application/vnd.github.v3+json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         name: repoName,
-        description: `Shared repository for project: ${projectTitle}`,
-        private: true,
+        description: projectDescription || `Shared repository for project: ${projectTitle}`,
+        private: false,
         auto_init: true,
       }),
     });
+  }
 
-    // If repository name already exists, append a unique suffix
-    if (createRes.status === 422) {
-      const suffix = Math.floor(1000 + Math.random() * 9000);
-      repoName = `${repoName}-${suffix}`;
-      console.log(`Repository name already exists, retrying with unique suffix: ${repoName}`);
+  if (!createRes.ok) {
+    const errorBody = await createRes.json().catch(() => ({}));
+    throw new Error(errorBody.message || `Failed to create repository: ${createRes.statusText}`);
+  }
 
-      createRes = await fetch("https://api.github.com/user/repos", {
-        method: "POST",
+  const repoData = await createRes.json();
+  return {
+    name: repoData.name,
+    url: repoData.html_url,
+    owner: repoData.owner.login,
+    createdAt: new Date(repoData.created_at || Date.now()),
+  };
+}
+
+/**
+ * Invites a collaborator to the specified repository with push permission.
+ */
+export async function addCollaborator(
+  accessToken: string,
+  owner: string,
+  repo: string,
+  username: string
+): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/collaborators/${username}`,
+      {
+        method: "PUT",
         headers: {
-          "Authorization": `token ${pat}`,
+          "Authorization": `token ${accessToken}`,
           "Accept": "application/vnd.github.v3+json",
-          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: repoName,
-          description: `Shared repository for project: ${projectTitle}`,
-          private: true,
-          auto_init: true,
+          permission: "push",
         }),
-      });
+      }
+    );
+
+    if (!res.ok) {
+      const errorBody = await res.json().catch(() => ({}));
+      console.warn(`Could not invite user ${username} to repository:`, errorBody.message || res.statusText);
+      return false;
     }
-
-    if (!createRes.ok) {
-      throw new Error(`Failed to create repository: ${createRes.statusText}`);
-    }
-
-    const repoData = await createRes.json();
-    const repoUrl = repoData.html_url;
-    console.log(`Successfully created private GitHub repository: ${repoUrl}`);
-
-    // 4. Retrieve the project document to find the owner ID
-    const project = await Project.findById(projectId);
-    const creatorId = project ? project.owner : null;
-
-    // 5. Get all team members of this project
-    const members = await TeamMember.find({ project: projectId }).populate("user", "username githubUrl");
-
-    // 6. Invite members as collaborators
-    for (const member of members) {
-      const user = member.user as any;
-      if (!user) continue;
-
-      // Parse/extract the GitHub username from githubUrl or default to username
-      let gitUsername = "";
-      if (user.githubUrl) {
-        const parts = user.githubUrl.split("/");
-        const name = parts[parts.length - 1];
-        if (name) gitUsername = name;
-      }
-      if (!gitUsername) {
-        gitUsername = user.username;
-      }
-
-      // Do not invite the owner of the PAT (they are already the repo owner)
-      if (gitUsername.toLowerCase() === ownerName.toLowerCase()) {
-        continue;
-      }
-
-      console.log(`Inviting collaborator ${gitUsername} to repository ${ownerName}/${repoName}...`);
-      try {
-        const inviteRes = await fetch(
-          `https://api.github.com/repos/${ownerName}/${repoName}/collaborators/${gitUsername}`,
-          {
-            method: "PUT",
-            headers: {
-              "Authorization": `token ${pat}`,
-              "Accept": "application/vnd.github.v3+json",
-            },
-            body: JSON.stringify({
-              permission: "push",
-            }),
-          }
-        );
-
-        if (!inviteRes.ok) {
-          console.warn(`Could not invite user ${gitUsername} to repository:`, inviteRes.statusText);
-        }
-      } catch (err) {
-        console.error(`Error sending collaborator invite to ${gitUsername}:`, err);
-      }
-    }
-
-    // 7. Automatically add the GitHub repository link to the Project's Resource Vault
-    try {
-      const resourceCreator = creatorId || (members[0]?.user?._id as mongoose.Types.ObjectId);
-      if (resourceCreator) {
-        await Resource.create({
-          project: new mongoose.Types.ObjectId(projectId),
-          creator: resourceCreator,
-          title: "Project GitHub Repository",
-          url: repoUrl,
-          category: "GitHub",
-        });
-        console.log(`Successfully added GitHub link to Project Resource Vault: ${repoUrl}`);
-      }
-    } catch (err) {
-      console.error("Failed to automatically add repository resource link to Resource Vault:", err);
-    }
-
-    return repoUrl;
+    return true;
   } catch (err) {
-    console.error("Auto GitHub setup encountered an error:", err);
-    return null;
+    console.error(`Error sending collaborator invite to ${username}:`, err);
+    return false;
   }
 }

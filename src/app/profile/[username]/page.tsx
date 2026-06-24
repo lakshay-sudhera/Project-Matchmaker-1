@@ -17,7 +17,7 @@ export default async function UserProfilePage({ params }: Props) {
   await connectToDatabase();
 
   // Find User by username (case-insensitive search)
-  const userDoc = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, "i") } });
+  const userDoc = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, "i") } }).select("+githubAccessToken");
   if (!userDoc) {
     notFound();
   }
@@ -67,6 +67,7 @@ export default async function UserProfilePage({ params }: Props) {
     image: userDoc.image,
     bio: userDoc.bio || "",
     githubUrl: userDoc.githubUrl || "",
+    hasGithubAccessToken: !!userDoc.githubAccessToken,
     publicRepos: userDoc.publicRepos.map((repo: any) => ({
       name: repo.name,
       description: repo.description || "",

@@ -9,7 +9,12 @@ export interface IProject extends Document {
   maxTeamSize: number;
   owner: mongoose.Types.ObjectId;
   status: "Recruiting" | "Active" | "Completed" | "Archived";
-  githubRepo?: string;
+  githubRepo?: {
+    name: string;
+    url: string;
+    owner: string;
+    createdAt: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,7 +38,12 @@ const ProjectSchema = new Schema<IProject>(
       default: "Recruiting",
       index: true,
     },
-    githubRepo: { type: String, default: "" },
+    githubRepo: {
+      name: { type: String },
+      url: { type: String },
+      owner: { type: String },
+      createdAt: { type: Date },
+    },
   },
   { timestamps: true }
 );

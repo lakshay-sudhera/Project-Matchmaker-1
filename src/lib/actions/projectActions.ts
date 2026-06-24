@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import { connectToDatabase } from "@/lib/db";
 import { Project, TeamMember, Hub, Application, Invitation } from "@/lib/models";
 import mongoose from "mongoose";
-import { setupGitHubRepository } from "@/lib/github";
+import { setupProjectRepository } from "@/lib/githubSetup";
 
 // Create Project
 export async function createProject(formData: {
@@ -112,17 +112,19 @@ export async function updateProjectStatus(
   }
 
   const previousStatus = project.status;
-  project.status = status;
 
   // Auto GitHub setup when transitioning from Recruiting to Active
   if (previousStatus === "Recruiting" && status === "Active") {
     console.log(`Project "${project.title}" transitioning from Recruiting to Active. Triggering GitHub integration...`);
-    const repoUrl = await setupGitHubRepository(projectId, project.title);
-    if (repoUrl) {
-      project.githubRepo = repoUrl;
+    try {
+      await setupProjectRepository(projectId);
+    } catch (err: any) {
+      console.error("Auto GitHub setup encountered an error:", err);
+      throw new Error(err.message || "Failed to set up GitHub repository.");
     }
   }
 
+  project.status = status;
   await project.save();
 
   revalidatePath(`/projects/${projectId}`);

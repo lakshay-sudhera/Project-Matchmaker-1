@@ -3,6 +3,7 @@ import { authConfig } from "./auth.config";
 import { connectToDatabase } from "@/lib/db";
 import { User } from "@/lib/models";
 import { fetchGithubContributions } from "@/lib/github";
+import jwt from "jsonwebtoken";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -59,6 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               username: username,
               bio: bioText,
               githubUrl: githubProfileUrl,
+              githubAccessToken: account?.access_token,
               publicRepos: repos,
               languages: devLanguages,
               contributionCount: contributionCount,
@@ -80,6 +82,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (devLanguages.length > 0) {
               existingUser.languages = devLanguages;
             }
+            if (account?.access_token) {
+              existingUser.githubAccessToken = account.access_token;
+            }
             await existingUser.save();
           }
         } catch (err) {
@@ -90,22 +95,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async jwt({ token, user, profile }) {
       if (user) {
-        token.id = user.id;
-        token.username = (profile as any)?.login || user.name || "";
+        const payload = {
+          id: user.id,
+          username: (profile as any)?.login || user.name || "",
+        };
+        const secret = process.env.AUTH_SECRET || "fallback_secret";
+        // Store user ID and GitHub username as a signed JWT payload
+        token.encodedData = jwt.sign(payload, secret);
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        await connectToDatabase();
-        const dbUser = await User.findOne({ email: session.user.email });
-        if (dbUser) {
-          session.user.id = dbUser._id.toString();
-          (session.user as any).username = dbUser.username;
-          (session.user as any).skills = dbUser.skills;
-          (session.user as any).roles = dbUser.roles;
-          (session.user as any).availability = dbUser.availability;
-          (session.user as any).trustScore = dbUser.trustScore;
+      if (session.user && token.encodedData) {
+        try {
+          const secret = process.env.AUTH_SECRET || "fallback_secret";
+          const decoded = jwt.verify(token.encodedData as string, secret) as { id: string; username: string };
+          
+          await connectToDatabase();
+          const dbUser = await User.findOne({ email: session.user.email });
+          if (dbUser) {
+            session.user.id = dbUser._id.toString();
+            (session.user as any).username = dbUser.username || decoded.username;
+            (session.user as any).skills = dbUser.skills;
+            (session.user as any).roles = dbUser.roles;
+            (session.user as any).availability = dbUser.availability;
+            (session.user as any).trustScore = dbUser.trustScore;
+          }
+        } catch (err) {
+          console.error("Failed to verify custom signed JWT data in session callback:", err);
         }
       }
       return session;

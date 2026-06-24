@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { updateProfile } from "@/lib/actions/profileActions";
+import { updateProfile, reconnectGithub } from "@/lib/actions/profileActions";
 import SkillBadge from "@/components/SkillBadge";
 import ReviewCard from "@/components/ReviewCard";
 import { User, Mail, BookOpen, AlertCircle, Edit3, Save, Check, Award, Code, Activity } from "lucide-react";
@@ -16,6 +16,7 @@ interface ProfileClientProps {
     image?: string;
     bio?: string;
     githubUrl?: string;
+    hasGithubAccessToken?: boolean;
     publicRepos: {
       name: string;
       description?: string;
@@ -216,6 +217,61 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
             </p>
           )}
         </div>
+
+        {/* GitHub Integration Connection Status */}
+        {isMe && (
+          <div className="rounded-2xl border border-zinc-900 bg-zinc-950/80 p-6 shadow-xl backdrop-blur space-y-4">
+            <h3 className="text-sm font-bold text-zinc-200 flex items-center gap-2 border-b border-zinc-900 pb-3">
+              <Code className="h-4 w-4 text-violet-400" />
+              GitHub Integration
+            </h3>
+            {user.hasGithubAccessToken ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-zinc-400">GitHub Integration:</span>
+                  <span className="flex items-center gap-1 text-emerald-400 font-bold bg-emerald-950/30 border border-emerald-900/30 rounded-full px-2.5 py-0.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-550 animate-pulse" />
+                    ✅ Connected
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-zinc-400">Repository Access:</span>
+                  <span className="text-violet-400 font-bold bg-violet-950/30 border border-violet-900/30 rounded-full px-2.5 py-0.5">
+                    Enabled
+                  </span>
+                </div>
+                <form action={reconnectGithub}>
+                  <button
+                    type="submit"
+                    className="w-full mt-2 inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-850 hover:border-zinc-800 hover:text-zinc-250 px-4 py-2 text-xs font-bold text-zinc-400 transition duration-200 cursor-pointer"
+                  >
+                    Reconnect GitHub
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-zinc-400">GitHub Integration:</span>
+                  <span className="flex items-center gap-1 text-rose-455 font-bold bg-rose-950/30 border border-rose-900/30 rounded-full px-2.5 py-0.5">
+                    ❌ Repository access missing
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-550 leading-relaxed">
+                  To automatically create repositories and invite team members, reconnect your GitHub account and allow repository access.
+                </p>
+                <form action={reconnectGithub}>
+                  <button
+                    type="submit"
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-violet-600/10 transition duration-200 cursor-pointer"
+                  >
+                    Reconnect GitHub
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* EDIT PROFILE DIALOG/PANEL */}
         {isMe && editMode && (

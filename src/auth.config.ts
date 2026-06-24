@@ -6,6 +6,11 @@ export const authConfig = {
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID,
       clientSecret: process.env.AUTH_GITHUB_SECRET,
+      authorization: {
+        params: {
+          scope: "read:user user:email public_repo",
+        },
+      },
       profile(profile) {
         return {
           id: profile.id.toString(),

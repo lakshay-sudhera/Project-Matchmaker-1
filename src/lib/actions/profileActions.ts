@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { connectToDatabase } from "@/lib/db";
 import { User, Review, TeamMember, Project } from "@/lib/models";
 import mongoose from "mongoose";
@@ -134,4 +134,15 @@ export async function submitReview(
   revalidatePath(`/projects/${projectId}`);
 
   return { success: true };
+}
+
+export async function reconnectGithub() {
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  await connectToDatabase();
+  const user = await User.findOne({ email: session.user.email });
+  const username = user?.username || "me";
+
+  await signIn("github", { redirectTo: `/profile/${username}` });
 }

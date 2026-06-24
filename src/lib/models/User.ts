@@ -15,6 +15,7 @@ export interface IUser extends Document {
   username: string;
   bio?: string;
   githubUrl?: string;
+  githubAccessToken?: string;
   publicRepos: IRepo[];
   languages: string[];
   contributionCount: number;
@@ -36,6 +37,7 @@ const UserSchema = new Schema<IUser>(
     username: { type: String, required: true, unique: true, index: true },
     bio: { type: String, default: "" },
     githubUrl: { type: String, default: "" },
+    githubAccessToken: { type: String, select: false },
     publicRepos: [
       {
         name: { type: String, required: true },

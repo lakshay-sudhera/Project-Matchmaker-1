@@ -8,7 +8,7 @@ export default async function LandingPage() {
 
   return (
     <div className="space-y-24 py-10">
-      
+
       {/* HERO SECTION */}
       <section className="text-center relative py-12">
         {/* Glow Effects */}
@@ -18,7 +18,7 @@ export default async function LandingPage() {
         {/* Feature Announcement Badge */}
         <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-950/40 border border-violet-850 px-3.5 py-1.5 text-xs font-bold text-violet-300 mb-6 backdrop-blur shadow-sm">
           <Sparkles className="h-3.5 w-3.5 fill-violet-400" />
-          Powered by Gemini 1.5 Flash AI
+          Lets Build Together with MatchMaker
         </span>
 
         {/* Headline */}
@@ -93,7 +93,7 @@ export default async function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
+
           {/* Feature 1 */}
           <div className="rounded-2xl border border-zinc-900 bg-zinc-950/40 p-6 shadow-md backdrop-blur">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-950/30 text-violet-400 border border-violet-900/40 mb-4">

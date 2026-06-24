@@ -1,5 +1,7 @@
 # 🤝 Project Matchmaker
 
+**Live Demo**: [https://project-matchmaker-chi.vercel.app/](https://project-matchmaker-chi.vercel.app/)
+
 Project Matchmaker is a production-ready, full-stack Next.js web application designed to help developers, students, and creators find the perfect teammates for hackathons, college projects, startup ideas, and open-source collaborations.
 
 The platform goes beyond simple listings by providing intelligent AI-driven matchmaking recommendation scores, automated GitHub repository provisioning for active teams, real-time Pusher socket notifications, and private secure workspaces (Hubs) equipped with chat rooms, discussions, Kanban boards, expense logs, and peer trust reviews.

@@ -9,6 +9,7 @@ import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import { addResource, deleteResource, createDiscussion, createDiscussionReply } from "@/lib/actions/hubActions";
 import { Link as LinkIcon, Plus, Trash2, ExternalLink, MessageSquare, PlusCircle, Reply, User, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import AlertDialog from "@/components/AlertDialog";
 
 interface MemberType {
   _id: string;
@@ -118,6 +119,10 @@ export default function WorkspaceHubClient({
   const [resources, setResources] = useState<ResourceType[]>(initialResources);
   const [discussions, setDiscussions] = useState<DiscussionType[]>(initialDiscussions);
 
+  // Alert Dialog States
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [resourceToDelete, setResourceToDelete] = useState<string | null>(null);
+
   // Resource form state
   const [resTitle, setResTitle] = useState("");
   const [resUrl, setResUrl] = useState("");
@@ -174,9 +179,16 @@ export default function WorkspaceHubClient({
     }
   };
 
-  // Handle Delete Resource
-  const handleDeleteResource = async (resourceId: string) => {
-    if (!confirm("Are you sure you want to delete this resource?")) return;
+  // Handle Delete Resource click
+  const handleDeleteResourceClick = (resourceId: string) => {
+    setResourceToDelete(resourceId);
+    setIsAlertOpen(true);
+  };
+
+  // Handle Confirm Delete Resource
+  const handleConfirmDeleteResource = async () => {
+    if (!resourceToDelete) return;
+    const resourceId = resourceToDelete;
     try {
       const res = await deleteResource(projectId, resourceId);
       if (res.success) {
@@ -186,6 +198,8 @@ export default function WorkspaceHubClient({
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || "Failed to delete resource.");
+    } finally {
+      setResourceToDelete(null);
     }
   };
 
@@ -271,7 +285,8 @@ export default function WorkspaceHubClient({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8">
+    <>
+      <div className="flex flex-col lg:flex-row gap-8">
 
       {/* 1. Sidebar Nav */}
       <Sidebar
@@ -588,8 +603,8 @@ export default function WorkspaceHubClient({
                     </div>
 
                     <button
-                      onClick={() => handleDeleteResource(res._id)}
-                      className="text-zinc-650 hover:text-rose-450 p-2 rounded-md hover:bg-rose-500/5 transition shrink-0"
+                      onClick={() => handleDeleteResourceClick(res._id)}
+                      className="text-zinc-650 hover:text-rose-455 p-2 rounded-md hover:bg-rose-500/5 transition shrink-0"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -630,5 +645,19 @@ export default function WorkspaceHubClient({
       </div>
 
     </div>
-  );
+
+    <AlertDialog
+      isOpen={isAlertOpen}
+      onClose={() => {
+        setIsAlertOpen(false);
+        setResourceToDelete(null);
+      }}
+      onConfirm={handleConfirmDeleteResource}
+      title="Delete Workspace Resource"
+      description="Are you sure you want to delete this resource link? This will remove the reference link from this project team workspace."
+      confirmText="Delete"
+      isDestructive={true}
+    />
+  </>
+);
 }

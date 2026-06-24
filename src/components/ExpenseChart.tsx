@@ -5,6 +5,7 @@ import { addExpense, deleteExpense } from "@/lib/actions/hubActions";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { DollarSign, Plus, Trash2, Calendar, Folder, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import AlertDialog from "@/components/AlertDialog";
 
 interface ExpenseType {
   _id: string;
@@ -47,6 +48,10 @@ export default function ExpenseChart({
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  // Alert Dialog States
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
 
   // Compute Total
   const totalSpending = expenses.reduce((sum, item) => sum + item.amount, 0);
@@ -114,9 +119,16 @@ export default function ExpenseChart({
     }
   };
 
-  // Handle Delete Expense
-  const handleDelete = async (expenseId: string) => {
-    if (!confirm("Are you sure you want to delete this expense?")) return;
+  // Handle Delete Expense Click
+  const handleDeleteClick = (expenseId: string) => {
+    setExpenseToDelete(expenseId);
+    setIsAlertOpen(true);
+  };
+
+  // Handle Confirm Delete Expense
+  const handleConfirmDelete = async () => {
+    if (!expenseToDelete) return;
+    const expenseId = expenseToDelete;
     setDeletingId(expenseId);
     try {
       const res = await deleteExpense(projectId, expenseId);
@@ -129,6 +141,7 @@ export default function ExpenseChart({
       toast.error(err.message || "Failed to delete expense.");
     } finally {
       setDeletingId(null);
+      setExpenseToDelete(null);
     }
   };
 
@@ -312,7 +325,7 @@ export default function ExpenseChart({
                     <span className="text-sm font-bold text-zinc-200">${expense.amount.toFixed(2)}</span>
                     {canDelete && (
                       <button
-                        onClick={() => handleDelete(expense._id)}
+                        onClick={() => handleDeleteClick(expense._id)}
                         disabled={deletingId === expense._id}
                         className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-md hover:bg-rose-500/10 transition"
                       >
@@ -334,6 +347,19 @@ export default function ExpenseChart({
           )}
         </div>
       </div>
+
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => {
+          setIsAlertOpen(false);
+          setExpenseToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Expense Log"
+        description="Are you sure you want to delete this expense? This will remove the cost record permanently from the team workspace."
+        confirmText="Delete"
+        isDestructive={true}
+      />
     </div>
   );
 }

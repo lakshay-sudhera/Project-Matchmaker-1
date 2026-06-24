@@ -10,6 +10,7 @@ import SkillBadge from "@/components/SkillBadge";
 import Link from "next/link";
 import { Users, Layout, ShieldAlert, Check, X, FileText, Send, Trash2, LogOut, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import AlertDialog from "@/components/AlertDialog";
 
 interface ProjectDetailClientProps {
   project: {
@@ -77,6 +78,34 @@ export default function ProjectDetailClient({
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Dynamic Alert Dialog States
+  const [alertConfig, setAlertConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    confirmText?: string;
+    isDestructive?: boolean;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
+
+  const triggerAlert = (config: {
+    title: string;
+    description: string;
+    confirmText?: string;
+    isDestructive?: boolean;
+    onConfirm: () => void;
+  }) => {
+    setAlertConfig({
+      isOpen: true,
+      ...config,
+    });
+  };
 
   // Apply State
   const [applyMessage, setApplyMessage] = useState("");
@@ -202,20 +231,27 @@ export default function ProjectDetailClient({
   };
 
   // Handle Delete Project
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this project? This will permanently wipe all discussions, chats, tasks and resources.")) return;
-    setDeleting(true);
-    try {
-      const res = await deleteProject(project._id);
-      if (res.success) {
-        toast.success("Project deleted successfully!");
-        router.push("/dashboard");
+  const handleDelete = () => {
+    triggerAlert({
+      title: "Delete Project Workspace",
+      description: "Are you sure you want to delete this project? This will permanently wipe all discussions, chats, tasks, resources, and team member links. This action cannot be undone.",
+      confirmText: "Delete Project",
+      isDestructive: true,
+      onConfirm: async () => {
+        setDeleting(true);
+        try {
+          const res = await deleteProject(project._id);
+          if (res.success) {
+            toast.success("Project deleted successfully!");
+            router.push("/dashboard");
+          }
+        } catch (err: any) {
+          console.error(err);
+          toast.error(err.message || "Failed to delete project.");
+          setDeleting(false);
+        }
       }
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || "Failed to delete project.");
-      setDeleting(false);
-    }
+    });
   };
 
   // Handle Application Submit
@@ -257,41 +293,56 @@ export default function ProjectDetailClient({
   };
 
   // Handle Leave Team
-  const handleLeaveTeam = async () => {
-    if (!confirm("Are you sure you want to leave this project team?")) return;
-    setActionLoading("leave");
-    try {
-      const res = await removeTeamMember(project._id, currentUser!.id);
-      if (res.success) {
-        toast.success("Successfully left the team.");
-        router.refresh();
+  const handleLeaveTeam = () => {
+    triggerAlert({
+      title: "Leave Project Team",
+      description: "Are you sure you want to leave this project team? You will lose access to the project team workspace and discussions immediately.",
+      confirmText: "Leave Team",
+      isDestructive: true,
+      onConfirm: async () => {
+        setActionLoading("leave");
+        try {
+          const res = await removeTeamMember(project._id, currentUser!.id);
+          if (res.success) {
+            toast.success("Successfully left the team.");
+            router.refresh();
+          }
+        } catch (err: any) {
+          toast.error(err.message || "Failed to leave team.");
+        } finally {
+          setActionLoading(null);
+        }
       }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to leave team.");
-    } finally {
-      setActionLoading(null);
-    }
+    });
   };
 
   // Handle Kick Member
-  const handleKickMember = async (memberId: string, memberName: string) => {
-    if (!confirm(`Are you sure you want to remove ${memberName} from this team?`)) return;
-    setActionLoading(memberId);
-    try {
-      const res = await removeTeamMember(project._id, memberId);
-      if (res.success) {
-        toast.success(`Removed ${memberName} from the team.`);
-        router.refresh();
+  const handleKickMember = (memberId: string, memberName: string) => {
+    triggerAlert({
+      title: "Remove Team Member",
+      description: `Are you sure you want to remove ${memberName} from this team? They will immediately lose access to the workspace hub.`,
+      confirmText: "Remove Member",
+      isDestructive: true,
+      onConfirm: async () => {
+        setActionLoading(memberId);
+        try {
+          const res = await removeTeamMember(project._id, memberId);
+          if (res.success) {
+            toast.success(`Removed ${memberName} from the team.`);
+            router.refresh();
+          }
+        } catch (err: any) {
+          toast.error(err.message || "Failed to remove member.");
+        } finally {
+          setActionLoading(null);
+        }
       }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to remove member.");
-    } finally {
-      setActionLoading(null);
-    }
+    });
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       
       {/* LEFT COLUMN: Project Details & Applicant Submissions */}
       <div className="lg:col-span-2 space-y-8">
@@ -851,6 +902,17 @@ export default function ProjectDetailClient({
         </div>
       )}
 
-    </div>
+      </div>
+
+      <AlertDialog
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={alertConfig.onConfirm}
+        title={alertConfig.title}
+        description={alertConfig.description}
+        confirmText={alertConfig.confirmText}
+        isDestructive={alertConfig.isDestructive}
+      />
+    </>
   );
 }

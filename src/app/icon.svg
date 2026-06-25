@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed" />
+      <stop offset="50%" stop-color="#d946ef" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+    <!-- Node Glow Filters (Optional but nice) -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Rounded Background Container -->
+  <rect width="512" height="512" rx="128" fill="url(#bg-grad)" />
+
+  <!-- Connection Lines -->
+  <!-- Outer Triangle -->
+  <line x1="256" y1="110" x2="130" y2="360" stroke="#ffffff" stroke-width="24" stroke-linecap="round" opacity="0.5" />
+  <line x1="256" y1="110" x2="382" y2="360" stroke="#ffffff" stroke-width="24" stroke-linecap="round" opacity="0.5" />
+  <line x1="130" y1="360" x2="382" y2="360" stroke="#ffffff" stroke-width="24" stroke-linecap="round" opacity="0.5" />
+  
+  <!-- Inner Connectors to Hub -->
+  <line x1="256" y1="110" x2="256" y2="250" stroke="#ffffff" stroke-width="24" stroke-linecap="round" opacity="0.85" />
+  <line x1="130" y1="360" x2="256" y2="250" stroke="#ffffff" stroke-width="24" stroke-linecap="round" opacity="0.85" />
+  <line x1="382" y1="360" x2="256" y2="250" stroke="#ffffff" stroke-width="24" stroke-linecap="round" opacity="0.85" />
+
+  <!-- Nodes (Vertices) -->
+  <!-- Top Node -->
+  <circle cx="256" cy="110" r="32" fill="#ffffff" filter="url(#glow)" />
+  <!-- Bottom Left Node -->
+  <circle cx="130" cy="360" r="32" fill="#ffffff" filter="url(#glow)" />
+  <!-- Bottom Right Node -->
+  <circle cx="382" cy="360" r="32" fill="#ffffff" filter="url(#glow)" />
+  <!-- Center Hub Node -->
+  <circle cx="256" cy="250" r="24" fill="#f4f4f5" />
+</svg>

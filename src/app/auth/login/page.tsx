@@ -1,7 +1,8 @@
 import React from "react";
 import { signIn, auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { Sparkles, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -17,9 +18,7 @@ export default async function LoginPage() {
         
         {/* Logo and Icon Header */}
         <div className="text-center mb-8">
-          <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg mb-4">
-            <Sparkles className="h-6 w-6 fill-current" />
-          </span>
+          <Logo showText={false} size={48} className="justify-center mb-4" />
           <h2 className="text-2xl font-black text-zinc-100 tracking-tight">Welcome to Matchmaker</h2>
           <p className="text-sm text-zinc-500 mt-1">Connect and build teams with GitHub verification</p>
         </div>

@@ -1,13 +1,12 @@
 import React from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function Loading() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-      {/* Premium Gradient Icon Container */}
-      <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-xl shadow-violet-500/20 animate-pulse">
-        <Sparkles className="h-8 w-8 fill-current" />
-      </div>
+      {/* Premium Logo Container */}
+      <Logo showText={false} size={64} className="animate-pulse" />
       
       {/* Brand Label */}
       <h3 className="text-sm font-extrabold tracking-widest uppercase bg-gradient-to-r from-violet-400 via-fuchsia-300 to-violet-300 bg-clip-text text-transparent">

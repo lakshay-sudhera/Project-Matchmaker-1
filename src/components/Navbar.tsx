@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth, signIn, signOut } from "@/auth";
 import { Sparkles, LayoutDashboard, PlusCircle, LogIn, LogOut, Compass, User as UserIcon } from "lucide-react";
 import NotificationBell from "./notifications/NotificationBell";
+import Logo from "./Logo";
 
 export default async function Navbar() {
   const session = await auth();
@@ -14,13 +15,8 @@ export default async function Navbar() {
         <div className="flex h-16 items-center justify-between gap-4">
           
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform duration-200">
-              <Sparkles className="h-5 w-5 fill-current" />
-            </span>
-            <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-300 to-violet-300 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
-              Matchmaker
-            </span>
+          <Link href="/">
+            <Logo />
           </Link>
 
           {/* Nav Links */}

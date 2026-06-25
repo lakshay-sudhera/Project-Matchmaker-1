@@ -95,33 +95,39 @@ export default async function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
           {/* Feature 1 */}
-          <div className="rounded-2xl border border-zinc-900 bg-zinc-950/40 p-6 shadow-md backdrop-blur">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-950/30 text-violet-400 border border-violet-900/40 mb-4">
+          <div className="group relative rounded-2xl border border-zinc-900 bg-zinc-950/40 p-6 shadow-md backdrop-blur transition-all duration-300 hover:border-violet-500/30 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(124,58,237,0.15)] overflow-hidden">
+            {/* Hover ambient glow */}
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-violet-600/0 to-fuchsia-600/0 opacity-0 group-hover:from-violet-600/5 group-hover:to-fuchsia-600/5 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-950/30 text-violet-400 border border-violet-900/40 mb-4 group-hover:scale-110 group-hover:bg-violet-950/50 group-hover:border-violet-500/30 transition-all duration-300">
               <Bot className="h-5 w-5" />
             </span>
-            <h3 className="text-lg font-bold text-zinc-200 mb-2">AI Matching Engine</h3>
+            <h3 className="text-lg font-bold text-zinc-200 mb-2 group-hover:text-violet-300 transition-colors">AI Matching Engine</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
               Gemini-powered recommendation algorithms analyze project requirements against candidate skills, past experience, and GitHub metrics to deliver ranked compatibilities.
             </p>
           </div>
 
           {/* Feature 2 */}
-          <div className="rounded-2xl border border-zinc-900 bg-zinc-950/40 p-6 shadow-md backdrop-blur">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-fuchsia-950/30 text-fuchsia-400 border border-fuchsia-900/40 mb-4">
+          <div className="group relative rounded-2xl border border-zinc-900 bg-zinc-950/40 p-6 shadow-md backdrop-blur transition-all duration-300 hover:border-fuchsia-500/30 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(217,70,239,0.15)] overflow-hidden">
+            {/* Hover ambient glow */}
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-fuchsia-600/0 to-violet-600/0 opacity-0 group-hover:from-fuchsia-600/5 group-hover:to-violet-600/5 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-fuchsia-950/30 text-fuchsia-400 border border-fuchsia-900/40 mb-4 group-hover:scale-110 group-hover:bg-fuchsia-950/50 group-hover:border-fuchsia-500/30 transition-all duration-300">
               <Award className="h-5 w-5" />
             </span>
-            <h3 className="text-lg font-bold text-zinc-200 mb-2">Verified Trust Score</h3>
+            <h3 className="text-lg font-bold text-zinc-200 mb-2 group-hover:text-fuchsia-300 transition-colors">Verified Trust Score</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
               Teammates review each other on completed builds based on technical capability, communication, and reliability. This feeds directly into a global Trust Score.
             </p>
           </div>
 
           {/* Feature 3 */}
-          <div className="rounded-2xl border border-zinc-900 bg-zinc-950/40 p-6 shadow-md backdrop-blur">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-950/30 text-cyan-400 border border-cyan-900/40 mb-4">
+          <div className="group relative rounded-2xl border border-zinc-900 bg-zinc-950/40 p-6 shadow-md backdrop-blur transition-all duration-300 hover:border-cyan-500/30 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(6,182,212,0.15)] overflow-hidden">
+            {/* Hover ambient glow */}
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-cyan-600/0 to-violet-600/0 opacity-0 group-hover:from-cyan-600/5 group-hover:to-violet-600/5 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-950/30 text-cyan-400 border border-cyan-900/40 mb-4 group-hover:scale-110 group-hover:bg-cyan-950/50 group-hover:border-cyan-500/30 transition-all duration-300">
               <Users className="h-5 w-5" />
             </span>
-            <h3 className="text-lg font-bold text-zinc-200 mb-2">Workspace Team Hub</h3>
+            <h3 className="text-lg font-bold text-zinc-200 mb-2 group-hover:text-cyan-300 transition-colors">Workspace Team Hub</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
               Accepting teammates automatically spins up a workspace hub featuring live discussion threads, Kanban task management boards, chat, resource vaults, and expense trackers.
             </p>

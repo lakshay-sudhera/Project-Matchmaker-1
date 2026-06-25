@@ -34,7 +34,9 @@ export default function ReviewCard({ review }: ReviewCardProps) {
   ];
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-5 shadow-lg backdrop-blur-sm">
+    <div className="group relative rounded-xl border border-zinc-800 bg-zinc-950/40 p-5 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-yellow-500/30 hover:-translate-y-1 hover:shadow-[0_15px_30px_-10px_rgba(234,179,8,0.08)] overflow-hidden">
+      {/* Background ambient glow on hover */}
+      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br from-yellow-500/0 to-yellow-500/0 opacity-0 transition-opacity duration-300 group-hover:from-yellow-500/4 group-hover:opacity-100" />
       <div className="flex items-start justify-between gap-4 mb-4">
         {/* Reviewer Information */}
         <div className="flex items-center gap-2.5">
@@ -42,7 +44,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
             <img
               src={review.reviewer.image}
               alt={review.reviewer.name}
-              className="h-9 w-9 rounded-full object-cover ring-1 ring-zinc-800"
+              className="h-9 w-9 rounded-full object-cover ring-1 ring-zinc-800 group-hover:scale-105 group-hover:ring-yellow-500/40 transition-all duration-300"
             />
           ) : (
             <div className="h-9 w-9 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold text-zinc-300">
@@ -56,7 +58,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
         </div>
 
         {/* Average Rating Badge */}
-        <div className="flex items-center gap-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-md px-2 py-1 text-sm font-bold">
+        <div className="flex items-center gap-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-md px-2 py-1 text-sm font-bold group-hover:scale-105 transition-transform duration-300">
           <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
           <span>{averageRating}</span>
         </div>

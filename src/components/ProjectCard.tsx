@@ -27,9 +27,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   const memberCount = project.memberCount ?? 1;
 
   return (
-    <div className="group relative rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-6 shadow-xl backdrop-blur-md transition-all duration-300 hover:border-violet-500/50 hover:shadow-violet-500/5 hover:-translate-y-0.5">
+    <div className="group relative rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-6 shadow-xl backdrop-blur-md transition-all duration-300 hover:border-violet-500/40 hover:shadow-[0_20px_45px_-15px_rgba(124,58,237,0.15)] hover:-translate-y-1.5 overflow-hidden">
       {/* Background ambient glow on hover */}
-      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br from-violet-600/0 via-violet-600/0 to-violet-600/0 opacity-0 transition-opacity duration-300 group-hover:from-violet-600/5 group-hover:to-fuchsia-600/5 group-hover:opacity-100" />
+      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br from-violet-600/0 via-violet-600/0 to-violet-600/0 opacity-0 transition-opacity duration-300 group-hover:from-violet-600/8 group-hover:to-fuchsia-600/5 group-hover:opacity-100" />
 
       <div className="flex flex-col h-full justify-between">
         <div>
@@ -91,7 +91,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <img
                 src={project.owner.image}
                 alt={project.owner.name}
-                className="h-7 w-7 rounded-full object-cover ring-1 ring-zinc-800"
+                className="h-7 w-7 rounded-full object-cover ring-1 ring-zinc-800 group-hover:scale-110 group-hover:ring-violet-500/50 transition-all duration-300"
               />
             ) : (
               <div className="h-7 w-7 rounded-full bg-violet-600 flex items-center justify-center text-xs font-bold text-white">
@@ -114,7 +114,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             </span>
             <Link
               href={`/projects/${project._id}`}
-              className="rounded-md bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-violet-500 transition-all duration-300"
+              className="rounded-md bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white shadow hover:bg-violet-500 hover:scale-105 active:scale-95 transition-all duration-200"
             >
               View Project
             </Link>

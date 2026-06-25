@@ -4,8 +4,28 @@ import React, { useState } from "react";
 import { updateProfile, reconnectGithub } from "@/lib/actions/profileActions";
 import SkillBadge from "@/components/SkillBadge";
 import ReviewCard from "@/components/ReviewCard";
-import { User, Mail, BookOpen, AlertCircle, Edit3, Save, Check, Award, Code, Activity, Loader2 } from "lucide-react";
+import { User, Mail, BookOpen, AlertCircle, Edit3, Save, Check, Award, Code, Activity, Loader2, GitFork, Star } from "lucide-react";
 import { toast } from "sonner";
+
+const getLanguageColor = (lang?: string) => {
+  if (!lang) return "bg-zinc-500";
+  const colors: Record<string, string> = {
+    javascript: "bg-amber-400",
+    typescript: "bg-blue-400",
+    python: "bg-emerald-400",
+    html: "bg-orange-400",
+    css: "bg-fuchsia-400",
+    rust: "bg-orange-600",
+    go: "bg-cyan-400",
+    c: "bg-zinc-400",
+    "c++": "bg-rose-400",
+    java: "bg-red-400",
+    ruby: "bg-rose-500",
+    php: "bg-indigo-400",
+    shell: "bg-lime-400",
+  };
+  return colors[lang.toLowerCase()] || "bg-violet-400";
+};
 
 interface ProfileClientProps {
   user: {
@@ -232,7 +252,7 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
 
         {/* GitHub Integration Connection Status */}
         {isMe && (
-          <div className="rounded-2xl border border-zinc-900 bg-zinc-950/80 p-6 shadow-xl backdrop-blur space-y-4">
+          <div className="rounded-2xl border border-zinc-900 bg-zinc-950/80 p-6 shadow-xl backdrop-blur space-y-4 bg-gradient-to-br from-zinc-950 via-zinc-950 to-violet-950/15 transition-all duration-300 hover:border-violet-500/20">
             <h3 className="text-sm font-bold text-zinc-200 flex items-center gap-2 border-b border-zinc-900 pb-3">
               <Code className="h-4 w-4 text-violet-400" />
               GitHub Integration
@@ -406,7 +426,7 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
       <div className="lg:col-span-2 space-y-8">
         
         {/* GitHub Contribution Graph */}
-        <div className="rounded-2xl border border-zinc-900 bg-zinc-950/60 p-6 backdrop-blur space-y-4">
+        <div className="rounded-2xl border border-zinc-900 bg-zinc-950/60 p-6 backdrop-blur space-y-4 transition-all duration-300 hover:border-violet-500/20 hover:shadow-lg hover:shadow-violet-500/5">
           <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
             <h3 className="text-base font-bold text-zinc-200 flex items-center gap-2">
               <Activity className="h-5 w-5 text-violet-400" />
@@ -429,7 +449,7 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
         </div>
 
         {/* GitHub Repositories */}
-        <div className="rounded-2xl border border-zinc-900 bg-zinc-950/60 p-6 backdrop-blur space-y-6">
+        <div className="rounded-2xl border border-zinc-900 bg-zinc-950/60 p-6 backdrop-blur space-y-6 transition-all duration-300 hover:border-violet-500/20 hover:shadow-lg hover:shadow-violet-500/5">
           <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
             <h3 className="text-base font-bold text-zinc-200 flex items-center gap-2">
               <Code className="h-5 w-5 text-violet-400" />
@@ -456,25 +476,34 @@ export default function ProfileClient({ user, currentUser, reviews }: ProfileCli
                   href={repo.htmlUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-xl border border-zinc-900 bg-zinc-900/10 p-4 transition-all duration-300 hover:border-zinc-800 hover:-translate-y-0.5 flex flex-col justify-between"
+                  className="group relative rounded-xl border border-zinc-900 bg-zinc-950/40 p-4 transition-all duration-300 hover:border-violet-500/35 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/5 flex flex-col justify-between overflow-hidden"
                 >
+                  {/* Hover ambient glow */}
+                  <div className="absolute inset-0 -z-10 bg-gradient-to-br from-violet-600/0 to-fuchsia-600/0 opacity-0 group-hover:from-violet-600/5 group-hover:to-fuchsia-600/5 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+                  
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-200 line-clamp-1 hover:text-violet-400 transition-colors">
-                      {repo.name}
-                    </h4>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <GitFork className="h-3.5 w-3.5 text-zinc-500 group-hover:text-violet-400 group-hover:rotate-12 transition-all duration-300" />
+                      <h4 className="text-sm font-bold text-zinc-200 line-clamp-1 group-hover:text-violet-400 transition-colors duration-300">
+                        {repo.name}
+                      </h4>
+                    </div>
                     {repo.description && (
-                      <p className="text-xs text-zinc-500 line-clamp-2 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-zinc-550 line-clamp-2 leading-relaxed">
                         {repo.description}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between mt-4 text-[10px] text-zinc-400 font-semibold pt-2 border-t border-zinc-900/60">
+                  <div className="flex items-center justify-between mt-4 text-[10px] text-zinc-400 font-semibold pt-2 border-t border-zinc-900/40">
                     <span className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-violet-500" />
-                      {repo.language || "Markdown"}
+                      <span className={`h-2.5 w-2.5 rounded-full ${getLanguageColor(repo.language)}`} />
+                      <span>{repo.language || "Markdown"}</span>
                     </span>
-                    <span>★ {repo.stars}</span>
+                    <span className="flex items-center gap-1 text-zinc-400 group-hover:text-amber-400 transition-colors duration-300">
+                      <Star className="h-3.5 w-3.5 text-zinc-500 group-hover:text-amber-400 group-hover:fill-amber-400 transition-all duration-300" />
+                      <span>{repo.stars}</span>
+                    </span>
                   </div>
                 </a>
               ))

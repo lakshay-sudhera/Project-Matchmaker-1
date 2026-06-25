@@ -57,7 +57,9 @@ export default function RecommendationCard({
   };
 
   return (
-    <div className="relative rounded-xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:border-violet-500/30">
+    <div className="group relative rounded-xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:border-violet-500/40 hover:-translate-y-1 hover:shadow-[0_15px_30px_-10px_rgba(124,58,237,0.12)] overflow-hidden">
+      {/* Background ambient glow on hover */}
+      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br from-violet-600/0 via-violet-600/0 to-violet-600/0 opacity-0 transition-opacity duration-300 group-hover:from-violet-600/6 group-hover:to-fuchsia-600/4 group-hover:opacity-100" />
       {/* Top Header Match Rating */}
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-2">
@@ -65,7 +67,7 @@ export default function RecommendationCard({
             <img
               src={candidate.image}
               alt={candidate.name}
-              className="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-800"
+              className="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-800 group-hover:scale-105 group-hover:ring-violet-500/50 transition-all duration-300"
             />
           ) : (
             <div className="h-10 w-10 rounded-full bg-violet-600 flex items-center justify-center text-sm font-bold text-white">
@@ -153,7 +155,7 @@ export default function RecommendationCard({
         ) : (
           <button
             onClick={() => setShowInviteForm(true)}
-            className="inline-flex items-center gap-1.5 rounded bg-violet-600 hover:bg-violet-500 px-3.5 py-1.5 text-xs font-semibold text-white transition-all shadow duration-200"
+            className="inline-flex items-center gap-1.5 rounded bg-violet-600 hover:bg-violet-500 hover:scale-105 active:scale-95 px-3.5 py-1.5 text-xs font-semibold text-white transition-all shadow duration-200"
           >
             <Send className="h-3 w-3" /> Invite to Team
           </button>

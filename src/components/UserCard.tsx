@@ -21,9 +21,9 @@ interface UserCardProps {
 
 export default function UserCard({ user }: UserCardProps) {
   return (
-    <div className="group relative rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-6 shadow-xl backdrop-blur-md transition-all duration-300 hover:border-fuchsia-500/50 hover:shadow-fuchsia-500/5 hover:-translate-y-0.5">
+    <div className="group relative rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-6 shadow-xl backdrop-blur-md transition-all duration-300 hover:border-fuchsia-500/40 hover:shadow-[0_20px_45px_-15px_rgba(217,70,239,0.15)] hover:-translate-y-1.5 overflow-hidden">
       {/* Ambient hover glow */}
-      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br from-fuchsia-600/0 via-fuchsia-600/0 to-fuchsia-600/0 opacity-0 transition-opacity duration-300 group-hover:from-fuchsia-600/5 group-hover:to-violet-600/5 group-hover:opacity-100" />
+      <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-br from-fuchsia-600/0 via-fuchsia-600/0 to-fuchsia-600/0 opacity-0 transition-opacity duration-300 group-hover:from-fuchsia-600/8 group-hover:to-violet-600/5 group-hover:opacity-100" />
 
       <div className="flex flex-col h-full justify-between">
         <div>
@@ -42,7 +42,7 @@ export default function UserCard({ user }: UserCardProps) {
               <img
                 src={user.image}
                 alt={user.name}
-                className="h-12 w-12 rounded-full object-cover ring-2 ring-zinc-850"
+                className="h-12 w-12 rounded-full object-cover ring-2 ring-zinc-850 group-hover:scale-105 group-hover:ring-fuchsia-500/50 transition-all duration-300"
               />
             ) : (
               <div className="h-12 w-12 rounded-full bg-fuchsia-600 flex items-center justify-center text-lg font-bold text-white shadow-md">
@@ -106,7 +106,7 @@ export default function UserCard({ user }: UserCardProps) {
           </div>
           <Link
             href={`/profile/${user.username}`}
-            className="rounded-md bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-850 px-3.5 py-1.5 text-xs font-semibold text-zinc-300 shadow transition-all duration-300"
+            className="rounded-md bg-zinc-900 border border-zinc-800 hover:border-fuchsia-500/50 hover:bg-zinc-850 hover:text-fuchsia-300 hover:scale-105 active:scale-95 px-3.5 py-1.5 text-xs font-semibold text-zinc-300 shadow transition-all duration-200"
           >
             View Profile
           </Link>
